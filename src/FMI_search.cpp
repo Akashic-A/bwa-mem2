@@ -591,68 +591,6 @@ void FMI_search::getSMEMsOnePosOneThread(uint8_t *enc_qdb,
                 prev[numPrev - p - 1] = temp;
             }
 
-            // Backward search
-            int cur_j = readlength;
-            for(j = x - 1; j >= 0; j--)
-            {
-                int numCurr = 0;
-                int curr_s = -1;
-                // a = enc_qdb[rid * readlength + j];
-                a = enc_qdb[offset + j];
-
-                if(a > 3)
-                {
-                    break;
-                }
-                for(p = 0; p < numPrev; p++)
-                {
-                    SMEM smem = prev[p];
-                    SMEM newSmem = backwardExt(smem, a);
-                    newSmem.m = j;
-
-                    if((newSmem.s < min_intv_array[i]) && ((smem.n - smem.m + 1) >= minSeedLen))
-                    {
-                        cur_j = j;
-
-                        matchArray[numTotalSmem++] = smem;
-                        break;
-                    }
-                    if((newSmem.s >= min_intv_array[i]) && (newSmem.s != curr_s))
-                    {
-                        curr_s = newSmem.s;
-                        prev[numCurr++] = newSmem;
-#ifdef ENABLE_PREFETCH
-                        _mm_prefetch((const char *)(&cp_occ[(newSmem.k) >> CP_SHIFT]), _MM_HINT_T0);
-                        _mm_prefetch((const char *)(&cp_occ[(newSmem.k + newSmem.s) >> CP_SHIFT]), _MM_HINT_T0);
-#endif
-                        break;
-                    }
-                }
-                p++;
-                for(; p < numPrev; p++)
-                {
-                    SMEM smem = prev[p];
-
-                    SMEM newSmem = backwardExt(smem, a);
-                    newSmem.m = j;
-
-
-                    if((newSmem.s >= min_intv_array[i]) && (newSmem.s != curr_s))
-                    {
-                        curr_s = newSmem.s;
-                        prev[numCurr++] = newSmem;
-#ifdef ENABLE_PREFETCH
-                        _mm_prefetch((const char *)(&cp_occ[(newSmem.k) >> CP_SHIFT]), _MM_HINT_T0);
-                        _mm_prefetch((const char *)(&cp_occ[(newSmem.k + newSmem.s) >> CP_SHIFT]), _MM_HINT_T0);
-#endif
-                    }
-                }
-                numPrev = numCurr;
-                if(numCurr == 0)
-                {
-                    break;
-                }
-            }
             if(numPrev != 0)
             {
                 SMEM smem = prev[0];
