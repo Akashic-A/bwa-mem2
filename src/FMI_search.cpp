@@ -856,54 +856,6 @@ void FMI_search::getSMEMs(uint8_t *enc_qdb,
 
                 int next_x = x - 1;
 
-                // Backward search
-                int cur_j = readlength;
-                for(j = x - 1; j >= 0; j--)
-                {
-                    int numCurr = 0;
-                    int curr_s = -1;
-                    a = enc_qdb[i * readlength + j];
-                    //printf("a = %d\n", a);
-                    if(a > 3)
-                    {
-                        next_x = j - 1;
-                        break;
-                    }
-                    for(p = 0; p < numPrev; p++)
-                    {
-                        SMEM smem = prev[p];
-                        SMEM newSmem = backwardExt(smem, a);
-                        newSmem.m = j;
-
-                        if(newSmem.s == 0)
-                        {
-                            if((numCurr == 0) && (j < cur_j))
-                            {
-                                cur_j = j;
-                                if((smem.n - smem.m + 1) >= minSeedLen)
-                                    myMatchArray[numTotalSmem[tid] + numSmem++] = smem;
-                            }
-                        }
-                        if((newSmem.s != 0) && (newSmem.s != curr_s))
-                        {
-                            curr_s = newSmem.s;
-                            curr[numCurr++] = newSmem;
-                        }
-                    }
-                    SMEM *temp = prev;
-                    prev = curr;
-                    curr = temp;
-                    numPrev = numCurr;
-                    if(numCurr == 0)
-                    {
-                        next_x = j;
-                        break;
-                    }
-                    else
-                    {
-                        next_x = j - 1;
-                    }
-                }
                 if(numPrev != 0)
                 {
                     SMEM smem = prev[0];
